@@ -1,0 +1,4 @@
+include README.rst
+include LICENSE
+include requirements.txt
+recursive-include ckanext/solr-sqs *.html *.json *.js *.less *.css *.mo
