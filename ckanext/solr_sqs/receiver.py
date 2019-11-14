@@ -1,21 +1,47 @@
-from ckan.common import config
+from ConfigParser import ConfigParser
+
+import logging
+import os
 
 import boto3
 
-client = boto3.client('sqs', 'us-east-1')
-sqs_url = config.get('ckan.sqs_solr_sync_queue_url')
 
-print(sqs_url)
+def get_url():
+    config = ConfigParser()
+    config.read('/etc/ckan/default/production.ini')
 
-def _receive_messages():
-    response = client.receive_message(QueueUrl=url, MaxNumberOfMessages=10)
+    return config.get('app:main', 'ckan.sqs_solr_sync_queue_url')
+
+def receive_messages():
+    logger = logging.getLogger('ckanext.solr_sqs.receiver')
+
+    client = boto3.client('sqs', 'us-east-1')
+    sqs_url = get_url()
+
+    response = client.receive_message(QueueUrl=sqs_url, MaxNumberOfMessages=10)
     messages = response.get('Messages', [])
 
-    for message in messages['Messages']:
+    processed = []
+
+    logger.warn("TEST LOGGING")
+
+    for m in messages:
+        pid = m['Body']
+
+        if not pid in processed:
+            try:
+                os.system(
+                    'paster --plugin=ckan search-index rebuild {0} --config=/etc/ckan/default/production.ini'.format(pid)
+                )
+            except:
+                logger.error('Failed to reindex {0}'.format(pid))
+
+            processed.append(pid)
+
         client.delete_message(
-            QueueUrl=url,
-            ReceiptHandle=message['ReceiptHandle']
+            QueueUrl=sqs_url,
+            ReceiptHandle=m['ReceiptHandle']
         )
 
 if __name__ == '__main__':
-    _receive_messages()
+    receive_messages()
