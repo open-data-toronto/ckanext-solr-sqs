@@ -1,7 +1,6 @@
 from ConfigParser import ConfigParser
 
-import logging
-import os
+import subprocess
 
 import boto3
 
@@ -25,9 +24,14 @@ def receive_messages():
         pid = m['Body']
 
         if not pid in processed:
-            os.system(
-                'paster --plugin=ckan search-index rebuild {0} --config=/etc/ckan/default/production.ini'.format(pid)
-            )
+            subprocess.call([
+                'paster',
+                '--plugin=ckan',
+                'search-index',
+                'rebuild',
+                pid,
+                '--config=/etc/ckan/default/production.ini'
+            ])
 
             processed.append(pid)
 
