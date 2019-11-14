@@ -13,8 +13,6 @@ def get_url():
     return config.get('app:main', 'ckan.sqs_solr_sync_queue_url')
 
 def receive_messages():
-    logger = logging.getLogger('ckanext.solr_sqs.receiver')
-
     client = boto3.client('sqs', 'us-east-1')
     sqs_url = get_url()
 
@@ -23,18 +21,13 @@ def receive_messages():
 
     processed = []
 
-    logger.warn("TEST LOGGING")
-
     for m in messages:
         pid = m['Body']
 
         if not pid in processed:
-            try:
-                os.system(
-                    'paster --plugin=ckan search-index rebuild {0} --config=/etc/ckan/default/production.ini'.format(pid)
-                )
-            except:
-                logger.error('Failed to reindex {0}'.format(pid))
+            os.system(
+                'paster --plugin=ckan search-index rebuild {0} --config=/etc/ckan/default/production.ini'.format(pid)
+            )
 
             processed.append(pid)
 
