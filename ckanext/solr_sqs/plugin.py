@@ -21,14 +21,14 @@ def _send_message(msg):
 class SolrSqsPlugin(p.SingletonPlugin):
     p.implements(p.IPackageController, inherit=True)
 
-    def after_create(context, pkg_dict):
+    def after_create(self, context, pkg_dict):
         logger.warn(('create', pkg_dict['id']))
         _send_message(pkg_dict['id'])
 
-    def after_update(context, pkg_dict):
+    def after_update(self, context, pkg_dict):
         logger.warn(('update', pkg_dict['id']))
         _send_message(pkg_dict['id'])
 
-    def after_delete(context, pkg_dict):
+    def after_delete(self, context, pkg_dict):
         logger.warn(('delete', pkg_dict['id']))
         _send_message(pkg_dict['id'])
