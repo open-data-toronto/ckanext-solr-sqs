@@ -10,7 +10,6 @@ logger = logging.getLogger('ckan.base.logic')
 
 def _send_message(msg):
     client = boto3.client('sqs', 'us-east-1')
-
     sqs_url = config.get('ckan.sqs_solr_sync_queue_url')
 
     client.send_message(
