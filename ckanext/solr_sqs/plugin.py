@@ -2,8 +2,8 @@ from ckan.common import config
 
 import boto3
 
-import ckan.plugins as plugins
-import ckan.plugins.toolkit as toolkit
+import ckan.plugins as p
+import ckan.plugins.toolkit as tk
 
 import logging
 logger = logging.getLogger('ckan.base.logic')
@@ -18,7 +18,7 @@ def _send_message(msg):
         MessageBody=msg
     )
 
-class SolrSqsPlugin(plugins.SingletonPlugin):
+class SolrSqsPlugin(p.SingletonPlugin):
     p.implements(p.IPackageController, inherit=True)
 
     def after_create(context, pkg_dict):
