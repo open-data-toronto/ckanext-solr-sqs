@@ -18,23 +18,17 @@ def receive_messages():
     response = client.receive_message(QueueUrl=sqs_url, MaxNumberOfMessages=10)
     messages = response.get('Messages', [])
 
-    processed = []
+    if len(messages):
+        subprocess.call([
+            'paster',
+            '--plugin=ckan',
+            'search-index',
+            'rebuild',
+            '-r',
+            '--config=/etc/ckan/default/production.ini'
+        ])
 
     for m in messages:
-        pid = m['Body']
-
-        if not pid in processed:
-            subprocess.call([
-                'paster',
-                '--plugin=ckan',
-                'search-index',
-                'rebuild',
-                pid,
-                '--config=/etc/ckan/default/production.ini'
-            ])
-
-            processed.append(pid)
-
         client.delete_message(
             QueueUrl=sqs_url,
             ReceiptHandle=m['ReceiptHandle']
