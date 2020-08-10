@@ -1,6 +1,7 @@
 from ckan.common import config
 
 import boto3
+import re
 
 import ckan.plugins as p
 
