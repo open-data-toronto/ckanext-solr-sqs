@@ -6,8 +6,9 @@ import ckan.plugins as p
 
 
 def _send_message(msg):
-    client = boto3.client('sqs', 'us-east-1')
     sqs_url = config.get('ckan.sqs_solr_sync_queue_url')
+    region = re.search("sqs.(.*).amazon", sqs_url).group(1) 
+    client = boto3.client('sqs', region)
 
     client.send_message(
         QueueUrl=sqs_url,
