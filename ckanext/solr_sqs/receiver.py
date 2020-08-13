@@ -1,6 +1,7 @@
 from ConfigParser import ConfigParser
 
 import subprocess
+import re
 
 import boto3
 
@@ -12,8 +13,9 @@ def get_url():
     return config.get('app:main', 'ckan.sqs_solr_sync_queue_url')
 
 def receive_messages():
-    client = boto3.client('sqs', 'us-east-1')
     sqs_url = get_url()
+    region = re.search("sqs.(.*).amazon", sqs_url).group(1) 
+    client = boto3.client('sqs', region)
 
     response = client.receive_message(QueueUrl=sqs_url, MaxNumberOfMessages=10)
     messages = response.get('Messages', [])
