@@ -1,8 +1,8 @@
 import re
 import subprocess
+from configparser import ConfigParser
 
 import boto3
-from ConfigParser import ConfigParser
 
 
 def get_url():
@@ -12,6 +12,14 @@ def get_url():
     return config.get("app:main", "ckan.sqs_solr_sync_queue_url")
 
 
+# receive_messages gets the messages from the SQS queue and executes the solr reindex
+# This is triggered via a CRON job in the schedule: */5 * * * * /root/solrsqs.sh > /dev/null 2>&1
+# The CRON job runs a bash script that effectively runs this script:
+#
+#!/bin/bash
+# . /usr/lib/ckan/default/bin/activate
+# python /usr/lib/ckan/default/src/ckanext-solr-sqs/ckanext/solr_sqs/receiver.py
+#
 def receive_messages():
     sqs_url = get_url()
     region = re.search("sqs.(.*).amazon", sqs_url).group(1)
@@ -24,7 +32,8 @@ def receive_messages():
         subprocess.call(
             [
                 "ckan",
-                '--config="/etc/ckan/default/production.ini' "search-index",
+                "--config=/etc/ckan/default/production.ini",
+                "search-index",
                 "rebuild",
                 "-r",
             ]
