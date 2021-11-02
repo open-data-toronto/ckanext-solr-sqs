@@ -35,13 +35,22 @@ def receive_messages():
                 "--config=/etc/ckan/default/production.ini",
                 "search-index",
                 "rebuild",
-                "-r",
+                "-r"
             ]
         )
+    
+    for message in messages:
+        subprocess.call(
+            [
+                "ckan",
+                "--config=/etc/ckan/default/production.ini",
+                "search-index",
+                "rebuild",
+                message["Body"]
+            ]
+        )
+        client.delete_message(QueueUrl=sqs_url, ReceiptHandle = message["ReceiptHandle"]) 
 
-    for m in messages:
-        client.delete_message(QueueUrl=sqs_url, ReceiptHandle=m["ReceiptHandle"])
-
-
+   
 if __name__ == "__main__":
     receive_messages()
