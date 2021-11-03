@@ -28,13 +28,13 @@ class SolrSqsPlugin(p.SingletonPlugin):
     p.implements(p.IPackageController, inherit=True)
 
     def after_create(self, context, pkg_dict):
-        _send_message(pkg_dict['name'])
+        _send_message(pkg_dict['id'])
 
     def after_update(self, context, pkg_dict):
-        _send_message(pkg_dict['name'])
+        _send_message(pkg_dict['id'])
 
     def after_delete(self, context, pkg_dict):
-        _send_message(pkg_dict['name'])
+        _send_message(pkg_dict['id'])
 
 
     p.implements(p.IActions)
