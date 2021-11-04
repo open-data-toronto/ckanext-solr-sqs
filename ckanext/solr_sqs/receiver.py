@@ -38,8 +38,13 @@ def receive_messages():
                 "-r"
             ]
         )
-    
+    processed = []
     for message in messages:
+        if message["Body"] in processed:
+            continue
+
+        processed.append(message["Body"])
+
         subprocess.call(
             [
                 "ckan",
