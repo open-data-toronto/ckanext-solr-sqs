@@ -28,6 +28,7 @@ def receive_messages():
     response = client.receive_message(QueueUrl=sqs_url, MaxNumberOfMessages=10)
     messages = response.get("Messages", [])
 
+    # If there are messages in the queue, refresh the whole solr index
     if len(messages):
         subprocess.call(
             [
@@ -39,7 +40,9 @@ def receive_messages():
             ]
         )
     processed = []
+    # for each message in the queue, recreate the package in the message's index
     for message in messages:
+        # if we've already reindexed a package in this run, dont do it again
         if message["Body"] in processed:
             continue
 
@@ -54,8 +57,9 @@ def receive_messages():
                 message["Body"]
             ]
         )
+        # delete the message from the queue
         client.delete_message(QueueUrl=sqs_url, ReceiptHandle = message["ReceiptHandle"]) 
-
-   
+        
+# this function gets called directly by cron, hence the if __name__ == "__main__"
 if __name__ == "__main__":
     receive_messages()
