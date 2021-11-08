@@ -8,6 +8,7 @@ import ckan.plugins as p
 
 @tk.side_effect_free
 def send_message_api(context, data_dict):
+    # allows authorized users to reindex delivery solr via api    
     # make sure an authorized user is making this call
     assert context["auth_user_obj"], "This endpoint can be used by authorized accounts only"
 
@@ -15,6 +16,7 @@ def send_message_api(context, data_dict):
     return data_dict
 
 def _send_message(msg):
+    # messages delivery environment, prompting it to reindex solr
     sqs_url = config.get('ckan.sqs_solr_sync_queue_url')
     region = re.search("sqs.(.*).amazon", sqs_url).group(1) 
     client = boto3.client('sqs', region)
@@ -25,6 +27,7 @@ def _send_message(msg):
     )
 
 class SolrSqsPlugin(p.SingletonPlugin):
+    # logic for when to prompt delivery environment to reindex solr
     p.implements(p.IPackageController, inherit=True)
 
     def after_create(self, context, pkg_dict):
