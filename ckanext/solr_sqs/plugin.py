@@ -39,7 +39,8 @@ class SolrSqsPlugin(p.SingletonPlugin):
     def after_delete(self, context, pkg_dict):
         _send_message(pkg_dict['id'])
 
-
+    # makes api endpoint at <ckan_url>/api/action/solr_reindex_message
+    # the endpoint triggers the send_message_api() function
     p.implements(p.IActions)
     def get_actions(self):
         return {
