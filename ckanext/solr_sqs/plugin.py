@@ -6,7 +6,6 @@ import re
 
 import ckan.plugins as p
 
-@tk.side_effect_free
 def send_message_api(context, data_dict):
     # allows authorized users to reindex delivery solr via api    
     # make sure an authorized user is making this call
