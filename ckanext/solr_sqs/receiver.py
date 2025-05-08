@@ -43,9 +43,9 @@ def receive_messages():
                 "--config=/etc/ckan/default/production.ini",
                 "search-index",
                 "rebuild",
-                "-r"
-            ])
-       
+            ]
+        )
+
     processed = []
     # for each message in the queue, recreate the package in the message's index
     for message in messages:
@@ -61,12 +61,13 @@ def receive_messages():
                 "--config=/etc/ckan/default/production.ini",
                 "search-index",
                 "rebuild",
-                message["Body"]
+                message["Body"],
             ]
         )
         # delete the message from the queue
-        client.delete_message(QueueUrl=sqs_url, ReceiptHandle = message["ReceiptHandle"]) 
-            
+        client.delete_message(QueueUrl=sqs_url, ReceiptHandle=message["ReceiptHandle"])
+
+
 # this function gets called directly by cron, hence the if __name__ == "__main__"
 if __name__ == "__main__":
     receive_messages()
